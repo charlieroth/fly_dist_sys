@@ -1,6 +1,6 @@
-# Fly.io Distributed System Challenge
+# Fly.io Distributed System Challenges
 
-Repository for solving the [Fly.io Distributed System Challenges](https://fly.io/dist-sys/) using Elixir
+Solving [Fly.io Distributed System Challenges](https://fly.io/dist-sys/) using Elixir
 
 ## Progress
 
