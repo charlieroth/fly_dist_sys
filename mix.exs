@@ -21,9 +21,12 @@ defmodule FlyDistSys.MixProject do
   end
 
   def escript do
-    [
-      main_module: FlyDistSys.Listener
-    ]
+    # [main_module: Echo, name: 'echo_bin']
+    [main_module: UniqueId, name: 'unique_id_bin']
+    # [main_module: Broadcast, name: 'broadcast_bin']
+    # [main_module: GrowOnlyCounter, name: 'grow_only_counter_bin']
+    # [main_module: KafkaLog, name: 'kafka_log_bin']
+    # [main_module: KV, name: 'kv_bin']
   end
 
   # Run "mix help deps" to learn about dependencies.
