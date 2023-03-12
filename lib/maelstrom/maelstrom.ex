@@ -1,29 +1,16 @@
-defmodule Maelstrom.Message do
-  alias Maelstrom.Messages.{Init, Echo, Generate}
+defmodule Maelstrom do
+  alias Maelstrom.Message
+  alias Maelstrom.Message.{Init, Echo, Generate}
 
-  @spec parse(String.t()) :: %Init{} | %Echo{} | %Generate{} | :ok
+  @spec parse(String.t()) :: %Message{} | :ok
   def parse(raw_msg) do
     msg = raw_msg |> Jason.decode!()
     type = msg |> Map.get("body") |> Map.get("type")
-
-    case type do
-      "init" ->
-        parse_message({:init, msg})
-
-      "echo" ->
-        parse_message({:echo, msg})
-
-      "generate" ->
-        parse_message({:generate, msg})
-
-      t ->
-        IO.puts("Unsupported message type: #{t}")
-    end
+    parse_message(type, msg)
   end
 
-  def parse_message({:init, msg}) do
-    %Init{
-      id: msg |> Map.get("id"),
+  def parse_message("init", msg) do
+    %Message{
       src: msg |> Map.get("src"),
       dest: msg |> Map.get("dest"),
       body: %Init.Body{
@@ -35,26 +22,28 @@ defmodule Maelstrom.Message do
     }
   end
 
-  def parse_message({:echo, msg}) do
-    %Echo{
+  def parse_message("echo", msg) do
+    %Message{
       src: msg |> Map.get("src"),
       dest: msg |> Map.get("dest"),
       body: %Echo.Body{
-        type: "echo",
         msg_id: msg |> Map.get("body") |> Map.get("msg_id"),
         echo: msg |> Map.get("body") |> Map.get("echo")
       }
     }
   end
 
-  def parse_message({:generate, msg}) do
-    %Generate{
+  def parse_message("generate", msg) do
+    %Message{
       src: msg |> Map.get("src"),
       dest: msg |> Map.get("dest"),
       body: %Generate.Body{
-        type: "generate",
         msg_id: msg |> Map.get("body") |> Map.get("msg_id")
       }
     }
+  end
+
+  def parse_message(type, _msg) do
+    IO.puts("Unsupported message type: #{type}")
   end
 end
