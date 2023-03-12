@@ -1,49 +1,59 @@
 defmodule Maelstrom.Message do
-  alias Maelstrom.Messages
+  alias Maelstrom.Messages.{Init, Echo, Generate}
 
-  @spec parse(String.t()) :: %Messages.Init{} | %Messages.Echo{} | nil
+  @spec parse(String.t()) :: %Init{} | %Echo{} | %Generate{} | :ok
   def parse(raw_msg) do
-    msg = Jason.decode!(raw_msg)
-    body_type = msg |> Map.get("body") |> Map.get("type")
+    msg = raw_msg |> Jason.decode!()
+    type = msg |> Map.get("body") |> Map.get("type")
 
-    case body_type do
+    case type do
       "init" ->
         parse_message({:init, msg})
 
       "echo" ->
         parse_message({:echo, msg})
 
-      _ ->
-        IO.puts("Failed to parse message body type")
+      "generate" ->
+        parse_message({:generate, msg})
+
+      t ->
+        IO.puts("Unsupported message type: #{t}")
     end
   end
 
   def parse_message({:init, msg}) do
-    body = Map.get(msg, "body")
-
-    %Messages.Init{
-      id: Map.get(msg, "id"),
-      src: Map.get(msg, "src"),
-      dest: Map.get(msg, "dest"),
-      body: %Messages.Init.Body{
-        type: Map.get(body, "type"),
-        node_id: Map.get(body, "node_id"),
-        node_ids: Map.get(body, "node_ids"),
-        msg_id: Map.get(body, "msg_id")
+    %Init{
+      id: msg |> Map.get("id"),
+      src: msg |> Map.get("src"),
+      dest: msg |> Map.get("dest"),
+      body: %Init.Body{
+        type: msg |> Map.get("body") |> Map.get("type"),
+        msg_id: msg |> Map.get("body") |> Map.get("msg_id"),
+        node_id: msg |> Map.get("body") |> Map.get("node_id"),
+        node_ids: msg |> Map.get("body") |> Map.get("node_ids")
       }
     }
   end
 
   def parse_message({:echo, msg}) do
-    msg_body = Map.get(msg, "body")
+    %Echo{
+      src: msg |> Map.get("src"),
+      dest: msg |> Map.get("dest"),
+      body: %Echo.Body{
+        type: "echo",
+        msg_id: msg |> Map.get("body") |> Map.get("msg_id"),
+        echo: msg |> Map.get("body") |> Map.get("echo")
+      }
+    }
+  end
 
-    %Messages.Echo{
-      src: Map.get(msg, "src"),
-      dest: Map.get(msg, "des"),
-      body: %Messages.Echo.Body{
-        type: :echo,
-        msg_id: Map.get(msg_body, "msg_id"),
-        echo: Map.get(msg_body, "echo")
+  def parse_message({:generate, msg}) do
+    %Generate{
+      src: msg |> Map.get("src"),
+      dest: msg |> Map.get("dest"),
+      body: %Generate.Body{
+        type: "generate",
+        msg_id: msg |> Map.get("body") |> Map.get("msg_id")
       }
     }
   end

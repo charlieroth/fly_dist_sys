@@ -1,10 +1,10 @@
 defmodule Maelstrom.Node do
   use Agent
-  alias Maelstrom.Messages.{Init, InitOk, Echo, EchoOk}
+  alias Maelstrom.Messages.{Init, InitOk, Echo, EchoOk, Generate, GenerateOk}
 
   def start_link(_opts) do
     Agent.start_link(fn ->
-      %{id: nil, node_ids: [], msg_id: 0, response: nil}
+      %{id: nil, node_ids: [], response: nil}
     end)
   end
 
@@ -26,6 +26,9 @@ defmodule Maelstrom.Node do
         Agent.update(node, fn state -> handle_message(msg, state) end)
 
       %Echo{} = msg ->
+        Agent.update(node, fn state -> handle_message(msg, state) end)
+
+      %Generate{} = msg ->
         Agent.update(node, fn state -> handle_message(msg, state) end)
     end
   end
@@ -57,13 +60,37 @@ defmodule Maelstrom.Node do
         dest: msg.src,
         body: %EchoOk.Body{
           type: "echo_ok",
-          msg_id: state.msg_id,
+          msg_id: get_msg_id(state.id),
           in_reply_to: msg.body.msg_id,
           echo: msg.body.echo
         }
       }
       |> Jason.encode!()
 
-    %{state | response: response, msg_id: state.msg_id + 1}
+    %{state | response: response}
+  end
+
+  def handle_message(%Generate{} = msg, state) do
+    response =
+      %GenerateOk{
+        src: state.id,
+        dest: msg.src,
+        body: %GenerateOk.Body{
+          type: "generate_ok",
+          id: get_msg_id(state.id),
+          in_reply_to: msg.body.msg_id
+        }
+      }
+      |> Jason.encode!()
+
+    %{state | response: response}
+  end
+
+  defp get_msg_id(node_id) do
+    {seconds, micro_seconds} =
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.to_gregorian_seconds()
+
+    "#{node_id}-#{seconds}-#{micro_seconds}"
   end
 end
