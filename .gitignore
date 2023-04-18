@@ -31,3 +31,5 @@ fly_dist_sys-*.tar
 /grow_only_counter_bin
 /kafka_log_bin
 /kv_bin
+
+.DS_Store
