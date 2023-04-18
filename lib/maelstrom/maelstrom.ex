@@ -1,4 +1,8 @@
 defmodule Maelstrom do
+  @moduledoc """
+  Module for handling `maelstrom` protocol messages
+  """
+
   alias Maelstrom.Message
   alias Maelstrom.Message.{Init, Echo, Generate}
 
@@ -9,6 +13,7 @@ defmodule Maelstrom do
     parse_message(type, msg)
   end
 
+  @spec parse_message(String.t(), map()) :: %Message{}
   def parse_message("init", msg) do
     %Message{
       src: msg |> Map.get("src"),
