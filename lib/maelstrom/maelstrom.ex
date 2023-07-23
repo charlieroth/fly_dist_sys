@@ -4,7 +4,14 @@ defmodule Maelstrom do
   """
 
   alias Maelstrom.Message
-  alias Maelstrom.Message.{Init, Echo, Generate}
+  alias Maelstrom.Message.{
+    Init, 
+    Echo, 
+    Generate,
+    Read,
+    Topology,
+    Broadcast,
+  }
 
   @spec parse(String.t()) :: %Message{} | :ok
   def parse(raw_msg) do
@@ -16,6 +23,7 @@ defmodule Maelstrom do
   @spec parse_message(String.t(), map()) :: %Message{}
   def parse_message("init", msg) do
     %Message{
+      id: msg |> Map.get("id"),
       src: msg |> Map.get("src"),
       dest: msg |> Map.get("dest"),
       body: %Init.Body{
@@ -29,9 +37,11 @@ defmodule Maelstrom do
 
   def parse_message("echo", msg) do
     %Message{
+      id: msg |> Map.get("id"),
       src: msg |> Map.get("src"),
       dest: msg |> Map.get("dest"),
       body: %Echo.Body{
+        type: msg |> Map.get("body") |> Map.get("type"),
         msg_id: msg |> Map.get("body") |> Map.get("msg_id"),
         echo: msg |> Map.get("body") |> Map.get("echo")
       }
@@ -40,6 +50,7 @@ defmodule Maelstrom do
 
   def parse_message("generate", msg) do
     %Message{
+      id: msg |> Map.get("id"),
       src: msg |> Map.get("src"),
       dest: msg |> Map.get("dest"),
       body: %Generate.Body{
@@ -48,6 +59,40 @@ defmodule Maelstrom do
     }
   end
 
+  def parse_message("broadcast", msg) do
+    %Message{
+      id: msg |> Map.get("id"),
+      src: msg |> Map.get("src"),
+      dest: msg |> Map.get("dest"),
+      body: %Broadcast.Body{
+        msg_id: msg |> Map.get("body") |> Map.get("msg_id"),
+        message: msg |> Map.get("body") |> Map.get("message")
+      }
+    }
+  end
+  
+  def parse_message("topology", msg) do
+    %Message{
+      id: msg |> Map.get("id"),
+      src: msg |> Map.get("src"),
+      dest: msg |> Map.get("dest"),
+      body: %Topology.Body{
+        topology: msg |> Map.get("body") |> Map.get("topology")
+      }
+    }
+  end
+  
+  def parse_message("read", msg) do
+    %Message{
+      id: msg |> Map.get("id"),
+      src: msg |> Map.get("src"),
+      dest: msg |> Map.get("dest"),
+      body: %Read.Body{
+        msg_id: msg |> Map.get("body") |> Map.get("msg_id"),
+      }
+    }
+  end
+  
   def parse_message(type, _msg) do
     IO.puts("Unsupported message type: #{type}")
   end

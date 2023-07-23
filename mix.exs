@@ -22,8 +22,9 @@ defmodule FlyDistSys.MixProject do
 
   def escript do
     # [main_module: Echo, name: 'echo_bin']
-    [main_module: UniqueId, name: 'unique_id_bin']
-    # [main_module: Broadcast, name: 'broadcast_bin']
+    # [main_module: UniqueId, name: 'unique_id_bin']
+    [main_module: SingleNodeBroadcast, name: 'sn_broadcast_bin']
+    # [main_module: MultiNodeBroadcast, name: 'mn_broadcast_bin']
     # [main_module: GrowOnlyCounter, name: 'grow_only_counter_bin']
     # [main_module: KafkaLog, name: 'kafka_log_bin']
     # [main_module: KV, name: 'kv_bin']

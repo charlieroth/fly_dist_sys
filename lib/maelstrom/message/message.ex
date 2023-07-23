@@ -5,11 +5,12 @@ defmodule Maelstrom.Message do
   https://github.com/jepsen-io/maelstrom/blob/main/doc/protocol.md
   """
   @derive Jason.Encoder
-  @enforce_keys [:src, :dest, :body]
+  @enforce_keys [:id, :src, :dest, :body]
   @type t :: %{
+          id: integer(),
           src: String.t(),
           dest: String.t(),
           body: map()
         }
-  defstruct [:src, :dest, :body]
+  defstruct [:id, :src, :dest, :body]
 end
